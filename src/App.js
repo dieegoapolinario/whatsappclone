@@ -10,7 +10,7 @@ import SearchIcon from '@material-ui/icons/Search';
 
 export default () =>{
 
-  const [chatList, setChatList] = useState([{},{},{},{}]);
+  const [chatList, setChatList] = useState([{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}]);
 
   return(
     <div className="app-window">
@@ -44,7 +44,7 @@ export default () =>{
         </div>
       </div>
       <div className="contentArea">
-        ...
+        
       </div>
     </div>
   );
