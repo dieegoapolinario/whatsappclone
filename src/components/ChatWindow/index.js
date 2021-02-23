@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import EmojiPicker from 'emoji-picker-react';
 import './chatWindow.css';
 
+import Api from '../../Api';
+
 import MessageItem from '../MessageItem';
 
 import SearchIcon from '@material-ui/icons/Search';
@@ -12,7 +14,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import SendIcon from '@material-ui/icons/Send';
 import MicIcon from '@material-ui/icons/Mic';
 
-export default ({user}) => {
+export default ({user, data}) => {
 
   const body = useRef();
 
@@ -25,20 +27,14 @@ export default ({user}) => {
   const [emojiOpen, setEmojiOpen] = useState(false);
   const [text, setText] = useState('');
   const [listening, setListening] = useState(false);
-  const [list, setList] = useState([
-    {author: 123, body: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente doloribus dicta nam sit officiis delectus vero distinctio quam ratione voluptates dignissimos voluptas doloremque beatae, tenetur esse nisi sequi, hic soluta!'},
-    {author: 123, body: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente doloribus!!!'},
-    {author: 1234, body: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente doloribus dicta nam sit officiis delectus vero distinctio quam.'},
-    {author: 123, body: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente doloribus dicta nam sit officiis delectus vero distinctio quam ratione voluptates dignissimos voluptas doloremque beatae, tenetur esse nisi sequi, hic soluta!'},
-    {author: 123, body: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente doloribus!!!'},
-    {author: 1234, body: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente doloribus dicta nam sit officiis delectus vero distinctio quam.'},
-    {author: 123, body: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente doloribus dicta nam sit officiis delectus vero distinctio quam ratione voluptates dignissimos voluptas doloremque beatae, tenetur esse nisi sequi, hic soluta!'},
-    {author: 123, body: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente doloribus!!!'},
-    {author: 1234, body: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente doloribus dicta nam sit officiis delectus vero distinctio quam.'},
-    {author: 123, body: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente doloribus dicta nam sit officiis delectus vero distinctio quam ratione voluptates dignissimos voluptas doloremque beatae, tenetur esse nisi sequi, hic soluta!'},
-    {author: 123, body: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente doloribus!!!'},
-    {author: 1234, body: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente doloribus dicta nam sit officiis delectus vero distinctio quam.'},
-  ]);
+  const [list, setList] = useState([]);
+  const [users, setUsers] = useState([]);
+
+  useEffect(() =>{
+    setList([]);
+    let unsub = Api.onChatContent(data.chatId, setList, setUsers);
+    return unsub;
+  }, [data.chatId]);
 
   useEffect(() => {
     if(body.current.scrollHeight > body.current.offsetHeight){
@@ -69,16 +65,26 @@ export default ({user}) => {
       recognition.start();
     }
   }
-  const handleSendClick = () => {
 
+  const handleInputKeyUp = (e) =>{
+    if(e.keyCode == 13){
+      handleSendClick();
+    }
+  }
+  const handleSendClick = () => {
+    if(text !== ''){
+      Api.sendMessage(data, user.id, 'text', text, users);
+      setText('');
+      setEmojiOpen(false);
+    }
   }
 
   return(
     <div className="chatWindow">
       <div className="chatWindow--header">
         <div className="chatWindow--headerInfo">
-          <img src="https://www.w3schools.com/howto/img_avatar2.png" alt="avatar" className="chatWindow--avatar"/>
-          <div className="chatWindow--name">Diego Apolinário</div>
+          <img className="chatWindow--avatar" src={data.image} alt="avatar" />
+          <div className="chatWindow--name">{data.title}</div>
         </div>
         <div className="chatWindow--headerButtons">
           <div className="chatWindow--btn">
@@ -133,6 +139,7 @@ export default ({user}) => {
             placeholder="Digite uma mensagem"
             value={text}
             onChange={e => setText(e.target.value)}
+            onKeyUp={handleInputKeyUp}
           />
         </div>
         <div className="chatWindow--pos">
