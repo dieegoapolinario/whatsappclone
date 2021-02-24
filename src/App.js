@@ -18,11 +18,7 @@ export default () =>{
 
   const [chatList, setChatList] = useState([]);
   const [activeChat, setActiveChat] = useState({});
-  const [user, setUser] = useState({
-    id: 'YJ5dw2SeOlYzDn61gNeUdnvnETf2',
-    name: 'Diego Apolinário',
-    avatar: 'https://graph.facebook.com/4145026538854370/picture'
-  });
+  const [user, setUser] = useState(null);
   const [showNewChat, setShowNewChat] = useState(false);
 
   useEffect(() =>{
